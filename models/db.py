@@ -10,9 +10,12 @@ load_dotenv()
 
 # Load MySQL configuration from JSON file
 def load_config():
-    path = os.path.join("config", "config.json")
-    with open(path) as f:
-        return json.load()[mysql]
+    return {
+        "host": os.getenv("MYSQL_HOST"),
+        "user": os.getenv("MYSQL_USER"),
+        "password": os.getenv("MYSQL_PASSWORD"),
+        "database": os.getenv("MYSQL_DB")
+    }
     
 # Create a connection to the MySQL database
 def get_connection():
@@ -39,3 +42,23 @@ def log_event(cart_id, position, event_type):
         conn.close()
     except Exception as e:
         print(f"MySQL log error: {e}")
+
+# Get cart information
+def get_cart_info(cart_id):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("""
+            SELECT * FROM cart_logs
+            WHERE cart_id = %s
+            ORDER BY time_stamp DESC
+            LIMIT 1
+        """, (cart_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return result
+    except Exception as e:
+        print(f"DB Error: {e}")
+        return None
