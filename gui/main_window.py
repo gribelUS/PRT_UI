@@ -1,40 +1,51 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QSizePolicy, QStackedWidget
+from PyQt5.QtWidgets import (
+    QMainWindow, QWidget, QVBoxLayout, QSizePolicy, QStackedWidget, QMessageBox
+)
 from gui.navbar import NavBar
 from gui.home_view import HomeView
-from gui.activity_log_view import ActivityLogView
+from gui.activity_log_view import ActivityLogView 
+from models.db import get_connection
+import sys
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, db_conn):
         super().__init__()
-        self.setWindowTitle("PRT Control Interface")
-        self.setMinimumSize(1200, 700)
+        self.db_conn = db_conn
 
-        # Main layout
-        central_widget = QWidget()
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0) # No gap between navbar and content area
+        try:
+            # Create navigation bar
+            self.navbar = NavBar()
+            self.navbar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
-        # Add navbar and content area
-        self.navbar = NavBar()
-        self.navbar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            # Create views
+            self.home_view = HomeView()
+            self.activity_view = ActivityLogView(self.db_conn)
 
-        # Page stack
-        self.stack = QStackedWidget()
-        self.home_view = HomeView()
-        self.activity_view = ActivityLogView()
-        self.stack.addWidget(self.home_view) # Index 0
-        self.stack.addWidget(self.activity_view) # Index 1
+            # Page stack
+            self.stack = QStackedWidget()
+            self.stack.addWidget(self.home_view)
+            self.stack.addWidget(self.activity_view)
 
-        # Connect navbar buttons to routing
-        self.navbar.dashboard_btn.clicked.connect(lambda: self.stack.setCurrentIndex(0))
-        self.navbar.activity_btn.clicked.connect(lambda: self.stack.setCurrentIndex(1))
+            # Connect navbar buttons
+            self.navbar.dashboard_btn.clicked.connect(lambda: self.stack.setCurrentIndex(0))
+            self.navbar.activity_btn.clicked.connect(lambda: self.stack.setCurrentIndex(1))
 
-        layout.addWidget(self.navbar)
-        layout.addWidget(self.stack)
+            # Create main layout
+            central_widget = QWidget()
+            layout = QVBoxLayout()
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.setSpacing(0)
+            layout.addWidget(self.navbar)
+            layout.addWidget(self.stack)
 
-        central_widget.setLayout(layout)
-        self.setCentralWidget(central_widget)
+            central_widget.setLayout(layout)
+            self.setCentralWidget(central_widget)
 
-        # Background color
-        self.setStyleSheet("background-color: #002855;") # Set main window color to WVU blue
+            # Set background color
+            self.setStyleSheet("background-color: #002855;")
+
+        except Exception as e:
+            import traceback
+            print("❌ Exception inside MainWindow setup:")
+            traceback.print_exc()
+            sys.exit(1)

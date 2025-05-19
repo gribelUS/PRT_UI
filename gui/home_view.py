@@ -20,7 +20,7 @@ class HomeView(QWidget):
 
         # Live Track Map
         self.map_frame = TrackView()
-        self.map_frame.cart_clicked.connect(self.display_cart_info)
+        self.map_frame.cart_selected.connect(self.display_cart_info)
 
         # Control Panel
         self.panel_frame = QFrame()
