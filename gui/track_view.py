@@ -14,15 +14,15 @@ TRACK_NAMES = [
 # Tweak them as needed for your visual layout!
 TRACK_POS_PERCENTS = [
     0.00,   # Segment_A (top left)
-    0.10,   # Station_1
-    0.23,   # Segment_B
-    0.28,   # Station_2
-    0.39,   # Segment_C
-    0.50,   # Station_3
-    0.61,   # Segment_D
-    0.70,   # Station_4
-    0.85,   # Segment_E
-    0.95,   # Segment_F
+    0.047,   # Station_1
+    0.1045,   # Segment_B
+    0.661,   # Station_2
+    0.265,   # Segment_C
+    0.162,   # Station_3
+    0.50,   # Segment_D
+    0.548,   # Station_4
+    0.6045,   # Segment_E
+    0.765,   # Segment_F
 ]
 
 class TrackView(QWidget):
