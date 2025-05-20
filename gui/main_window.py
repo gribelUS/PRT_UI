@@ -46,6 +46,5 @@ class MainWindow(QMainWindow):
 
         except Exception as e:
             import traceback
-            print("❌ Exception inside MainWindow setup:")
             traceback.print_exc()
             sys.exit(1)

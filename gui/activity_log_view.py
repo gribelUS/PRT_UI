@@ -79,7 +79,6 @@ class ActivityLogView(QWidget):
             rows = cursor.fetchall()
             cursor.close()
         except Exception as e:
-            print(f"❌ Failed to load logs: {e}")
             rows = []
 
         self.table.setRowCount(len(rows))
