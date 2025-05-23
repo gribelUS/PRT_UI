@@ -83,3 +83,61 @@ def get_cart_info(cart_id):
     except Exception as e:
         print(f"❌ Error fetching cart info: {e}")
         return None
+
+def fetch_activity_logs(limit=100):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            """
+            SELECT cart_id, position, event_type, time_stamp
+            FROM cart_logs
+            ORDER BY time_stamp DESC
+            LIMIT %s
+            """,
+            (limit,)
+        )
+        logs = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        print(f"Fetched {len(logs)} activity log entries.")
+        return logs
+    except Exception as e:
+        print(f"❌ Error fetching activity logs: {e}")
+        return []
+    
+def fetch_filtered_logs(cart_id=None, position=None, since_time=None):
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        query = """
+            SELECT cart_id, position, event_type, time_stamp
+            FROM cart_logs
+            WHERE (%s IS NULL OR cart_id = %s)
+              AND (%s IS NULL OR position = %s)
+              AND (%s IS NULL OR time_stamp >= %s)
+            ORDER BY time_stamp DESC
+        """
+        params = (cart_id, cart_id, position, position, since_time, since_time)
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        print(f"Fetched {len(rows)} filtered activity log entries.")
+        return rows
+    except Exception as e:
+        print(f"Error fetching filtered logs: {e}")
+        return []
+    
+def fetch_all_cart_ids():
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT DISTINCT cart_id FROM cart_logs ORDER BY cart_id")
+        rows = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return [row['cart_id'] for row in rows]
+    except Exception as e:
+        print(f"Error fetching all cart IDs: {e}")
+        return []

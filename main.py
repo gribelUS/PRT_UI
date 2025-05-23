@@ -9,6 +9,7 @@ from PRTConfig import TAG_TO_READ, STATUS_BIT, TAG_TO_WRITE
 from Communication.PLCConfig import PRT_PLC_IP_ADDRESS
 from PRTPLC import PRTPLC
 from PRTConfig import BARCODE_DESTINATION_MAP
+import requests
 
 # Data Logger
 logger = DataLogger('datalogs', 'dataplots')
@@ -38,7 +39,18 @@ def run_system():
             barcode, active, lost, good, diverted = sorted_1_report
             barcode = int(barcode)
             logger.log_data(SORTER=1, TYPE="REPORT", BARCODE=barcode, ACTIVE=active, LOST=lost, GOOD=good, DIVERTED=diverted)
-
+            try:
+                status = "diverted" if diverted else "good"
+                payload = {
+                    "barcode": barcode,
+                    "location": "Sorter 1",
+                    "status": status
+                }
+                response = requests.post("http://localhost:5000/plc/update", json=payload)
+                if response.status_code != 200:
+                    print(f"[WARNING] Endpoint responded with {response.status_code}: {response.text}")
+            except Exception as e:
+                print(f"[ERROR] Failed to send data to endpoint: {e}")
         current_time = time()
         if current_time - LAST_SAVE_TIME >= SAVE_INTERVAL:
             logger.save_log("PRT")
