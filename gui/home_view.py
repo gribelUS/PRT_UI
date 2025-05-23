@@ -54,7 +54,7 @@ class HomeView(QWidget):
             self.info_label.setText(
                 f"<b>Cart ID:</b> {data['cart_id']}<br>"
                 f"<b>Status:</b> {data.get('event_type', 'N/A')}<br>"
-                f"<b>Location:</b> {data.get('location', 'Unknown')}<br>"
+                f"<b>Location:</b> {data.get('position', 'Unknown')}<br>"
                 f"<b>Time:</b> {data['time_stamp']}"
             )
         else:
