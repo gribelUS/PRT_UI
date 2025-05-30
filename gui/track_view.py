@@ -3,26 +3,13 @@ from PyQt5.QtGui import QPainter, QColor, QPen, QPainterPath
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 import math
 
-# Logical order of stops (segments and stations)
-TRACK_NAMES = [
-    "Segment_A", "Station_1", "Segment_B", "Station_2",
-    "Segment_C", "Station_3", "Segment_D", "Station_4",
-    "Segment_E", "Segment_F"
-]
-
-# These percent values determine where along the blue path each marker/carts/station goes.
-# Tweak them as needed for your visual layout!
-TRACK_POS_PERCENTS = [
-    0.00,   # Segment_A (top left)
-    0.047,   # Station_1
-    0.1045,   # Segment_B
-    0.661,   # Station_2
-    0.265,   # Segment_C
-    0.162,   # Station_3
-    0.50,   # Segment_D
-    0.548,   # Station_4
-    0.6045,   # Segment_E
-    0.765,   # Segment_F
+TRACK_SECTIONS = [
+    {"name": "Station_1", "track": "top"},
+    {"name": "Station_2", "track": "bottom"},
+    {"name": "Barcode_top", "track": "top"},
+    {"name": "Barcode_bottom", "track": "bottom"},
+    {"name": "Station_3", "track": "top"},
+    {"name": "Station_4", "track": "bottom"},
 ]
 
 class TrackView(QWidget):
@@ -42,47 +29,18 @@ class TrackView(QWidget):
         self.timer.start(30)
 
         self.set_carts([
-            {"id": "C1", "position": "Segment_A", "status": "Moving"},
-            {"id": "C2", "position": "Segment_D", "status": "Idle"},
+            {"id": "C1", "position": "Barcode_top", "status": "Moving"},
+            {"id": "C2", "position": "Barcode_bottom", "status": "Idle"},
         ])
 
     def set_carts(self, carts):
-        abs_pos = self.get_absolute_positions_for_carts()
-        for cart in carts:
-            pos_name = cart.get("position")
-            target_xy = abs_pos.get(pos_name, (100, 100))
-            if "x" not in cart or "y" not in cart:
-                cart["x"], cart["y"] = target_xy
-            cart["target_x"], cart["target_y"] = target_xy
         self.carts = carts
         self.update()
 
     def update_cart_positions(self):
-        changed = False
-        for cart in self.carts:
-            x, y = cart.get("x", 0), cart.get("y", 0)
-            target_x, target_y = cart.get("target_x", 0), cart.get("target_y", 0)
-            if abs(x - target_x) > 1:
-                step_x = 8 if x < target_x else -8
-                if abs(target_x - x) < abs(step_x):
-                    cart["x"] = target_x
-                else:
-                    cart["x"] += step_x
-                changed = True
-            else:
-                cart["x"] = target_x
+        self.update()
 
-            if abs(y - target_y) > 1:
-                step_y = 8 if y < target_y else -8
-                if abs(target_y - y) < abs(step_y):
-                    cart["y"] = target_y
-                else:
-                    cart["y"] += step_y
-                changed = True
-            else:
-                cart["y"] = target_y
-        if changed:
-            self.update()
+
 
     def get_track_center_path(self):
         margin = 40
