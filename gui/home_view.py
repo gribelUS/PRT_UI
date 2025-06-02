@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QSizePolicy
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QSizePolicy, QPushButton, QComboBox
 from gui.track_view import TrackView
 from models.db import get_cart_info
 
@@ -39,6 +39,20 @@ class HomeView(QWidget):
         info_title.setStyleSheet("font-size: 20px; font-weight: bold; color: white;")
         panel_layout.addWidget(info_title)
         panel_layout.addWidget(self.info_label)
+
+        # Dropdown for stations
+        self.station_dropdown = QComboBox()
+        self.station_dropdown.addItems(["Station 1", "Station 2", "Station 3", "Station 4"])
+        self.station_dropdown.setEnabled(False)
+        self.station_dropdown.setStyleSheet("QComboBox:enabled { background-color: white; color: #002855; } QComboBox:disabled { background-color: #f5e6b5; color: #888; }")
+        panel_layout.addWidget(self.station_dropdown)
+
+        # Send button
+        self.send_button = QPushButton("Send Cart to Station")
+        self.send_button.setEnabled(False)
+        self.send_button.setStyleSheet("QPushButton:enabled { background-color: white; color: #002855; } QPushButton:disabled { background-color: #f5e6b5; color: #888; }")
+        panel_layout.addWidget(self.send_button)
+
         panel_layout.addStretch()
         self.panel_frame.setLayout(panel_layout)
 
@@ -57,5 +71,9 @@ class HomeView(QWidget):
                 f"<b>Location:</b> {data.get('position', 'Unknown')}<br>"
                 f"<b>Time:</b> {data['time_stamp']}"
             )
+            self.station_dropdown.setEnabled(True)
+            self.send_button.setEnabled(True)
         else:
             self.info_label.setText(f"Cart '{cart_id}' has no recent data.")
+            self.station_dropdown.setEnabled(False)
+            self.send_button.setEnabled(False)

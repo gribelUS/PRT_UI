@@ -5,24 +5,18 @@ import math
 
 # Logical order of stops (segments and stations)
 TRACK_NAMES = [
-    "Segment_A", "Station_1", "Segment_B", "Station_2",
-    "Segment_C", "Station_3", "Segment_D", "Station_4",
-    "Segment_E", "Segment_F"
+    "Segment_A", "Station_1", "Station_2", "Station_3", "Station_4", "Segment_B"
 ]
 
 # These percent values determine where along the blue path each marker/carts/station goes.
-# Tweak them as needed for your visual layout!
+# Adjusted for 2 segments and 4 stations, spaced along the path.
 TRACK_POS_PERCENTS = [
-    0.00,   # Segment_A (top left)
-    0.047,   # Station_1
-    0.1045,   # Segment_B
-    0.661,   # Station_2
-    0.265,   # Segment_C
-    0.162,   # Station_3
-    0.50,   # Segment_D
-    0.548,   # Station_4
-    0.6045,   # Segment_E
-    0.765,   # Segment_F
+    0.135,    # Segment_A (middle of top straight segment, visually centered)
+    0.18,    # Station_1
+    0.70,    # Station_2
+    0.25,    # Station_3
+    0.55,    # Station_4
+    0.63     # Segment_B (middle of bottom straight segment, visually centered)
 ]
 
 class TrackView(QWidget):
@@ -43,7 +37,7 @@ class TrackView(QWidget):
 
         self.set_carts([
             {"id": "C1", "position": "Segment_A", "status": "Moving"},
-            {"id": "C2", "position": "Segment_D", "status": "Idle"},
+            {"id": "C2", "position": "Segment_B", "status": "Idle"},
         ])
 
     def set_carts(self, carts):
@@ -178,14 +172,22 @@ class TrackView(QWidget):
             painter.setPen(QPen(QColor("#002855"), 2))
             painter.drawRect(x - 20, center_y - 60, 40, 120)
 
-            # Red entrance at the path
-            ex, ey = abs_pos[name]
-            painter.setBrush(Qt.red)
-            painter.drawEllipse(int(ex) - 4, int(ey) - 4, 8, 8)
+            # Determine entrance position (top or bottom track)
+            if (i + 1) in [1, 3]:  # Stations 1 and 3: entry at top
+                entrance_y = inner_rect.top()
+                station_line_y = center_y - 60  # top of station rectangle
+            else:  # Stations 2 and 4: entry at bottom
+                entrance_y = inner_rect.bottom()
+                station_line_y = center_y + 60  # bottom of station rectangle
+            entrance_x = x
 
-            # Dashed line from entrance to station
+            # Red entrance at the path (override abs_pos for visual alignment)
+            painter.setBrush(Qt.red)
+            painter.drawEllipse(int(entrance_x) - 4, int(entrance_y) - 4, 8, 8)
+
+            # Dashed line from entrance to station (top or bottom)
             painter.setPen(QPen(Qt.red, 2, Qt.DashLine))
-            painter.drawLine(int(ex), int(ey), x, center_y - 60)
+            painter.drawLine(int(entrance_x), int(entrance_y), x, station_line_y)
 
             # Station label
             painter.setPen(Qt.black)
