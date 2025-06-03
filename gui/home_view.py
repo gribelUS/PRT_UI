@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QFrame, QVBoxLayout, QLabel, QSizePolicy, QPushButton, QComboBox
 from gui.track_view import TrackView
 from models.db import get_cart_info
+from models.api import send_cart_to_station
 
 class HomeView(QWidget):
     def __init__(self, parent=None):
@@ -62,6 +63,8 @@ class HomeView(QWidget):
         main_layout.addLayout(h_layout)
         self.setLayout(main_layout)
 
+        self.send_button.clicked.connect(self.send_cart_to_station_clicked)
+
     def display_cart_info(self, cart_id):
         data = get_cart_info(cart_id)
         if data:
@@ -77,3 +80,12 @@ class HomeView(QWidget):
             self.info_label.setText(f"Cart '{cart_id}' has no recent data.")
             self.station_dropdown.setEnabled(False)
             self.send_button.setEnabled(False)
+
+    def send_cart_to_station_clicked(self):
+        if not hasattr(self, 'track_view') or not self.track_view.selected_cart_id:
+            return
+        cart_id = self.track_view.selected_cart_id
+        station_index = self.station_dropdown.currentIndex()
+        station_id = f"Station_{station_index + 1}"
+        send_cart_to_station(cart_id, station_id)
+        self.info_label.setText(f"Sent cart {cart_id} to {station_id}.")
