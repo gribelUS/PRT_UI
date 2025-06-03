@@ -9,7 +9,6 @@ TRACK_NAMES = [
 ]
 
 # These percent values determine where along the blue path each marker/carts/station goes.
-# Adjusted for 2 segments and 4 stations, spaced along the path.
 TRACK_POS_PERCENTS = [
     0.135,    # Segment_A (middle of top straight segment, visually centered)
     0.18,    # Station_1
