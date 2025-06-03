@@ -3,7 +3,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
 class NavBar(QWidget):
-    def __init__(self):
+    def __init__(self, user):
         super().__init__()
         self.setFixedHeight(100)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -45,6 +45,13 @@ class NavBar(QWidget):
         self.activity_btn.setCursor(Qt.PointingHandCursor)
         self.activity_btn.setCheckable(True)
         layout.addWidget(self.activity_btn)
+
+        # Add admin-only button
+        if user["role"] == "admin":
+            self.manage_users_btn = QPushButton("Manage Users")
+            layout.addWidget(self.manage_users_btn)
+        else:
+            self.manage_users_btn = None
 
         layout.addStretch()
         outer_layout.addWidget(container)

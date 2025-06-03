@@ -5,16 +5,20 @@ from gui.navbar import NavBar
 from gui.home_view import HomeView
 from gui.activity_log_view import ActivityLogView 
 from models.db import get_connection
+from .add_user import AddUser
 import sys
 
 class MainWindow(QMainWindow):
-    def __init__(self, db_conn):
+    def __init__(self, db_conn, user):
         super().__init__()
         self.db_conn = db_conn
+        self.user = user
 
         try:
             # Create navigation bar
-            self.navbar = NavBar()
+            self.navbar = NavBar(self.user)
+            if self.navbar.manage_users_btn:
+                self.navbar.manage_users_btn.clicked.connect(self.open_add_user)
             self.navbar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
             # Create views
@@ -25,7 +29,7 @@ class MainWindow(QMainWindow):
             self.stack = QStackedWidget()
             self.stack.addWidget(self.home_view)
             self.stack.addWidget(self.activity_view)
-
+            
             # Connect navbar buttons
             self.navbar.dashboard_btn.clicked.connect(lambda: self.stack.setCurrentIndex(0))
             self.navbar.activity_btn.clicked.connect(lambda: self.stack.setCurrentIndex(1))
@@ -48,3 +52,7 @@ class MainWindow(QMainWindow):
             import traceback
             traceback.print_exc()
             sys.exit(1)
+
+    def open_add_user(self):
+        dialog = AddUser()
+        dialog.exec_()
