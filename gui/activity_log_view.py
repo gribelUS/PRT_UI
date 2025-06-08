@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QComboBox, QDateTimeEdit, QPushButton, QHeaderView
 )
 from PyQt5.QtCore import QDateTime, Qt
+from PyQt5 import QtGui
 from models.db import fetch_filtered_logs, fetch_all_cart_ids
 
 class ActivityLogView(QWidget):
@@ -14,63 +15,105 @@ class ActivityLogView(QWidget):
         self.setStyleSheet("background-color: #f2f2f2;")
         main_layout = QHBoxLayout()
 
-        # Table container
+        # Table container with "card" style
         table_container = QWidget()
-        table_container.setStyleSheet("background-color: white; padding: 10px; border-radius: 8px;")
+        table_container.setStyleSheet("""
+            background: #fff;
+            border-radius: 12px;
+            padding: 18px;
+            border: 1px solid #e0e0e0;
+        """)
         table_layout = QVBoxLayout(table_container)
         table_layout.setContentsMargins(0, 0, 0, 0)
 
         self.table = QTableWidget()
         self.table.setColumnCount(4)
         self.table.setHorizontalHeaderLabels(["Cart ID", "Position", "Event", "Time"])
-        self.table.setStyleSheet("""
-                QTableWidget {
-                    background-color: white;
-                    alternate-background-color: #f9f9f9;
-                    gridline-color: #ddd;
-                    font-size: 12pt;
-                }
-                QHeaderView::section {
-                    background-color: #f0f0f0;
-                    padding: 4px;
-                    font-weight: bold;
-                    border: 1px solid #ddd;
-                }
-            """)
+        self.table.horizontalHeader().setVisible(True)
+        self.table.verticalHeader().setVisible(False)
         self.table.setAlternatingRowColors(True)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table.verticalHeader().setDefaultSectionSize(36)
+        self.table.setFocusPolicy(Qt.NoFocus)
+        self.table.setShowGrid(False)
+        self.table.horizontalHeader().setHighlightSections(False)
+        self.table.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.table.setSelectionBehavior(QTableWidget.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SingleSelection)
+
+        # Style the main table and the header only!
+        self.table.setStyleSheet("""
+            QTableWidget {
+                background: #ffffff;
+                border: none;
+                font-size: 15px;
+                color: #14213d;
+                alternate-background-color: #f7fafd;
+                selection-background-color: #e9c46a;
+                selection-color: #14213d;
+                gridline-color: #e5e5e5;
+            }
+            QHeaderView::section {
+                background-color: #002855;
+                color: #fff;
+                padding: 8px 0;
+                font-size: 16px;
+                font-weight: bold;
+                border: none;
+                border-bottom: 2px solid #ffc107;
+            }
+        """)
+
+        # Optionally, set header font/bold in code for reliability.
+        header = self.table.horizontalHeader()
+        font = header.font()
+        font.setBold(True)
+        font.setPointSize(15)
+        header.setFont(font)
 
         table_layout.addWidget(self.table)
 
         # Sidebar: Filter panel on the right
-
         filter_panel = QWidget()
-        filter_panel.setStyleSheet("background-color: white; padding: 10px; border-radius: 8px; border: 1px solid #ddd;")
+        filter_panel.setStyleSheet("""
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        """)
         filter_layout = QVBoxLayout(filter_panel)
 
         # Cart filter
-        filter_layout.addWidget(QLabel("Cart ID:"))
+        cart_label = QLabel("Cart ID:")
+        cart_label.setStyleSheet("color: #002855; font-weight: bold;")
+        filter_layout.addWidget(cart_label)
         self.cart_filter = QComboBox()
+        self.cart_filter.setStyleSheet("color: #002855; font-weight: bold;")
         self.cart_filter.addItem("All", None)
         for cart_id in fetch_all_cart_ids():
             self.cart_filter.addItem(cart_id, cart_id)
         filter_layout.addWidget(self.cart_filter)
 
         # Station filter
-        filter_layout.addWidget(QLabel("Position:"))
+        station_label = QLabel("Station:")
+        station_label.setStyleSheet("color: #002855; font-weight: bold;")
+        filter_layout.addWidget(station_label)
         self.station_filter = QComboBox()
+        self.station_filter.setStyleSheet("color: #002855; font-weight: bold;")
         self.station_filter.addItem("All", None)
         for station in [
             "Station_1", "Station_2", "Station_3", "Station_4",
-            "Segment_A", "Segment_B", "Segment_C", "Segment_D",
-            "Segment_E", "Segment_F"
+            "Segment_A", "Segment_B"
         ]:
             self.station_filter.addItem(station, station)
         filter_layout.addWidget(self.station_filter)
 
         # Time filter
-        filter_layout.addWidget(QLabel("Since:"))
+        since_label = QLabel("Since:")
+        since_label.setStyleSheet("color: #002855; font-weight: bold;")
+        filter_layout.addWidget(since_label)
         self.time_filter = QDateTimeEdit()
+        self.time_filter.setStyleSheet("color: #002855; font-weight: bold;")
         self.time_filter.setCalendarPopup(True)
         self.time_filter.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
         self.time_filter.setDateTime(QDateTime.currentDateTime().addDays(-1))
@@ -78,10 +121,34 @@ class ActivityLogView(QWidget):
 
         # Buttons
         self.filter_btn = QPushButton("Filter")
+        self.filter_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #002855;
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #003a70;
+            }
+        """)
         self.filter_btn.clicked.connect(self.load_logs)
         filter_layout.addWidget(self.filter_btn)
 
         self.clear_btn = QPushButton("Clear Filters")
+        self.clear_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #002855;
+                color: white;
+                padding: 10px;
+                border-radius: 5px;
+                font-weight: bold;
+            }
+            QPushButton:hover {
+                background-color: #003a70;
+            }
+        """)
         self.clear_btn.clicked.connect(self.clear_filters)
         filter_layout.addWidget(self.clear_btn)
 
@@ -93,21 +160,50 @@ class ActivityLogView(QWidget):
 
         self.setLayout(main_layout)
         self.load_logs()
-        
+
     def load_logs(self):
         cart_id = self.cart_filter.currentData()
         position = self.station_filter.currentData()
-        time_stamp = self.time_filter.dateTime().toString("yyyy-MM-dd HH:mm:ss")
+        default_time = QDateTime.currentDateTime().addDays(-1)
+        selected_time = self.time_filter.dateTime()
+        if selected_time == default_time:
+            time_stamp = None
+        else:
+            time_stamp = selected_time.toString("yyyy-MM-dd HH:mm:ss")
 
         logs = fetch_filtered_logs(cart_id, position, time_stamp)
-
         self.table.setRowCount(len(logs))
-        for i, row in enumerate(logs):
-            self.table.setItem(i, 0, QTableWidgetItem(row["cart_id"]))
-            self.table.setItem(i, 1, QTableWidgetItem(row["position"]))
-            self.table.setItem(i, 2, QTableWidgetItem(row["event_type"]))
-            self.table.setItem(i, 3, QTableWidgetItem(row["time_stamp"].strftime("%Y-%m-%d %H:%M:%S")))    
 
+        for i, row in enumerate(logs):
+            ts = row["time_stamp"]
+            ts_str = ts.strftime("%Y-%m-%d %H:%M:%S") if hasattr(ts, "strftime") else str(ts)
+            values = [
+                row["cart_id"],
+                row["position"],
+                row["event_type"],
+                ts_str
+            ]
+            for col, value in enumerate(values):
+                item = QTableWidgetItem(str(value))
+                font = item.font()
+                font.setPointSize(14)
+                if col == 2:  # "Event" column
+                    font.setBold(True)
+                item.setFont(font)
+                # Alternate row coloring
+                if i % 2 == 0:
+                    item.setBackground(Qt.white)
+                else:
+                    item.setBackground(QtGui.QColor("#f7fafd"))
+                item.setForeground(QtGui.QBrush(QtGui.QColor("#14213d")))
+                # Text alignment
+                if col == 0:
+                    item.setTextAlignment(Qt.AlignVCenter | Qt.AlignLeft)
+                else:
+                    item.setTextAlignment(Qt.AlignVCenter | Qt.AlignCenter)
+                self.table.setItem(i, col, item)
+
+            # Special event coloring for "diverted"
             if row["event_type"] == "diverted":
                 for col in range(4):
                     item = self.table.item(i, col)

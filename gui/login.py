@@ -37,7 +37,7 @@ class LoginWindow(QDialog):
             conn = pymysql.connect(
                 host='localhost',
                 user='root',
-                password='root',
+                password='',
                 database='prt_system',
                 charset='utf8mb4',
                 cursorclass=pymysql.cursors.DictCursor

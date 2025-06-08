@@ -113,12 +113,21 @@ def fetch_filtered_logs(cart_id=None, position=None, since_time=None):
         query = """
             SELECT cart_id, position, event_type, time_stamp
             FROM cart_logs
-            WHERE (%s IS NULL OR cart_id = %s)
-              AND (%s IS NULL OR position = %s)
-              AND (%s IS NULL OR time_stamp >= %s)
-            ORDER BY time_stamp DESC
         """
-        params = (cart_id, cart_id, position, position, since_time, since_time)
+        conditions = []
+        params = []
+        if cart_id:
+            conditions.append("cart_id = %s")
+            params.append(cart_id)
+        if position:
+            conditions.append("position = %s")
+            params.append(position)
+        if since_time:
+            conditions.append("time_stamp >= %s")
+            params.append(since_time)
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+        query += " ORDER BY time_stamp DESC"
         cursor.execute(query, params)
         rows = cursor.fetchall()
         cursor.close()
