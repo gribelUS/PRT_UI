@@ -19,7 +19,7 @@ def load_config():
         "host": os.getenv("MYSQL_HOST", "127.0.0.1"),
         "port": int(os.getenv("MYSQL_PORT", 3306)),
         "user": os.getenv("MYSQL_USER", "root"),
-        "password": os.getenv("MYSQL_PASSWORD", ""),
+        "password": os.getenv("MYSQL_PASSWORD", "root"),
         "database": os.getenv("MYSQL_DB", "prt_system")
     }
 

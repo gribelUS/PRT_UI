@@ -56,8 +56,8 @@ class ActivityLogView(QWidget):
             QHeaderView::section {
                 background-color: #002855;
                 color: #fff;
-                padding: 8px 0;
-                font-size: 16px;
+                padding: 10px 0;
+                font-size: 18px;
                 font-weight: bold;
                 border: none;
                 border-bottom: 2px solid #ffc107;
@@ -70,6 +70,7 @@ class ActivityLogView(QWidget):
         font.setBold(True)
         font.setPointSize(15)
         header.setFont(font)
+        self.table.horizontalHeader().setDefaultAlignment(Qt.AlignVCenter | Qt.AlignCenter)
 
         table_layout.addWidget(self.table)
 

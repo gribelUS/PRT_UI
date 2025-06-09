@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtGui import QPainter, QColor, QPen, QPainterPath
 from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from models.db import fetch_activity_logs
 import math
 
 # Logical order of stops (segments and stations)
@@ -34,6 +35,10 @@ class TrackView(QWidget):
         self.timer.timeout.connect(self.update_cart_positions)
         self.timer.start(30)
 
+        self.update_timer = QTimer(self)
+        self.update_timer.timeout.connect(self.update_carts_from_logs)
+        self.update_timer.setInterval(2000)  # 2 seconds
+
         self.set_carts([
             {"id": "C1", "position": "Segment_A", "status": "Moving"},
             {"id": "C2", "position": "Segment_B", "status": "Idle"},
@@ -41,14 +46,59 @@ class TrackView(QWidget):
 
     def set_carts(self, carts):
         abs_pos = self.get_absolute_positions_for_carts()
+        # Group carts by position
+        position_groups = {}
         for cart in carts:
-            pos_name = cart.get("position")
-            target_xy = abs_pos.get(pos_name, (100, 100))
+            pos = cart.get("position")
+            if pos not in position_groups:
+                position_groups[pos] = []
+            position_groups[pos].append(cart)
+        # For each group, sort by log time (if available)
+        for pos, group in position_groups.items():
+            # If status is a log, use it for ordering (older first)
+            group.sort(key=lambda c: c.get("log_time", 0))
+            n = len(group)
+            if n == 1:
+                cart = group[0]
+                target_xy = abs_pos.get(pos, (100, 100))
+                cart["target_x"], cart["target_y"] = target_xy
+            else:
+                # Spread carts in a small arc clockwise around the main position
+                base_x, base_y = abs_pos.get(pos, (100, 100))
+                angle_offset = math.pi / 8  # 22.5 degrees
+                for i, cart in enumerate(group):
+                    angle = angle_offset * (i - (n-1)/2)
+                    # Move each cart slightly clockwise (positive angle)
+                    dx = 25 * math.cos(angle)
+                    dy = 25 * math.sin(angle)
+                    cart["target_x"] = base_x + dx
+                    cart["target_y"] = base_y + dy
+        # Flatten all carts back
+        all_carts = []
+        for group in position_groups.values():
+            all_carts.extend(group)
+        for cart in all_carts:
             if "x" not in cart or "y" not in cart:
-                cart["x"], cart["y"] = target_xy
-            cart["target_x"], cart["target_y"] = target_xy
-        self.carts = carts
+                cart["x"], cart["y"] = cart.get("target_x", 100), cart.get("target_y", 100)
+        self.carts = all_carts
         self.update()
+
+    def update_carts_from_logs(self):
+        logs = fetch_activity_logs(100)
+        cart_dict = {}
+        for log in logs:
+            cart_id = log["cart_id"]
+            if cart_id not in cart_dict or log["time_stamp"] > cart_dict[cart_id]["time_stamp"]:
+                cart_dict[cart_id] = log
+        carts = []
+        for cart_id, log in cart_dict.items():
+            carts.append({
+                "id": cart_id,
+                "position": log["position"],
+                "status": log["event_type"],
+                "log_time": log["time_stamp"].timestamp() if hasattr(log["time_stamp"], "timestamp") else 0
+            })
+        self.set_carts(carts)
 
     def update_cart_positions(self):
         changed = False
@@ -230,3 +280,12 @@ class TrackView(QWidget):
                 self.cart_selected.emit(cart["id"])
                 self.update()
                 break
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.update_carts_from_logs()
+        self.update_timer.start()
+
+    def hideEvent(self, event):
+        super().hideEvent(event)
+        self.update_timer.stop()
