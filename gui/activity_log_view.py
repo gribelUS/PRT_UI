@@ -15,12 +15,12 @@ class ActivityLogView(QWidget):
         self.setStyleSheet("background-color: #f2f2f2;")
         main_layout = QHBoxLayout()
 
-        # Table container with "card" style
+        # Table container with card style
         table_container = QWidget()
         table_container.setStyleSheet("""
             background: #fff;
             border-radius: 12px;
-            padding: 18px;
+            padding: 12px;
             border: 1px solid #e0e0e0;
         """)
         table_layout = QVBoxLayout(table_container)
@@ -41,7 +41,7 @@ class ActivityLogView(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.SingleSelection)
 
-        # Style the main table and the header only!
+        # Style the main table and the header
         self.table.setStyleSheet("""
             QTableWidget {
                 background: #ffffff;
@@ -64,11 +64,11 @@ class ActivityLogView(QWidget):
             }
         """)
 
-        # Optionally, set header font/bold in code for reliability.
+        # Set header font/bold
         header = self.table.horizontalHeader()
         font = header.font()
         font.setBold(True)
-        font.setPointSize(15)
+        font.setPointSize(30)
         header.setFont(font)
         self.table.horizontalHeader().setDefaultAlignment(Qt.AlignVCenter | Qt.AlignCenter)
 
@@ -204,11 +204,11 @@ class ActivityLogView(QWidget):
                     item.setTextAlignment(Qt.AlignVCenter | Qt.AlignCenter)
                 self.table.setItem(i, col, item)
 
-            # Special event coloring for "diverted"
+            # Special event coloring for diverted
             if row["event_type"] == "diverted":
                 for col in range(4):
                     item = self.table.item(i, col)
-                    item.setBackground(Qt.red)
+                    item.setBackground(Qt.green)
                     item.setForeground(Qt.white)
 
     def clear_filters(self):
