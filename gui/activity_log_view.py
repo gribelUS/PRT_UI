@@ -178,8 +178,9 @@ class ActivityLogView(QWidget):
         for i, row in enumerate(logs):
             ts = row["time_stamp"]
             ts_str = ts.strftime("%Y-%m-%d %H:%M:%S") if hasattr(ts, "strftime") else str(ts)
+            cart_id_display = "ERROR READING" if row["cart_id"] == "0000" else row["cart_id"]
             values = [
-                row["cart_id"],
+                cart_id_display,
                 row["position"],
                 row["event_type"],
                 ts_str
