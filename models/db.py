@@ -11,6 +11,7 @@ ALLOWED_POSITIONS = {
     'Station_1', 'Station_2', 'Station_3', 'Station_4',
     'Segment_A', 'Segment_B', 'Segment_C', 'Segment_D',
     'Segment_E', 'Segment_F'
+}
 EVENT_MAP = {
     "0000": "Not Diverted",
     "0010": "Lost",
