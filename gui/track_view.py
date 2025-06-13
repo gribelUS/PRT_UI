@@ -95,7 +95,7 @@ class TrackView(QWidget):
             carts.append({
                 "id": cart_id,
                 "position": log["position"],
-                "status": log["event_type"],
+                "status": log["event"],
                 "log_time": log["time_stamp"].timestamp() if hasattr(log["time_stamp"], "timestamp") else 0
             })
         self.set_carts(carts)

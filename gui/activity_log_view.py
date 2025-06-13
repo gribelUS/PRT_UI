@@ -27,8 +27,8 @@ class ActivityLogView(QWidget):
         table_layout.setContentsMargins(0, 0, 0, 0)
 
         self.table = QTableWidget()
-        self.table.setColumnCount(4)
-        self.table.setHorizontalHeaderLabels(["Cart ID", "Position", "Event", "Time"])
+        self.table.setColumnCount(5)
+        self.table.setHorizontalHeaderLabels(["Cart ID", "Position", "Event Type", "Event", "Time"])
         self.table.horizontalHeader().setVisible(True)
         self.table.verticalHeader().setVisible(False)
         self.table.setAlternatingRowColors(True)
@@ -179,17 +179,22 @@ class ActivityLogView(QWidget):
             ts = row["time_stamp"]
             ts_str = ts.strftime("%Y-%m-%d %H:%M:%S") if hasattr(ts, "strftime") else str(ts)
             cart_id_display = "ERROR READING" if row["cart_id"] == "0000" else row["cart_id"]
+            event_type = row.get("action_type", "")  # Request or Report
+            event = row.get("event", "")  # event from db (renamed from event_type)
             values = [
                 cart_id_display,
-                row["position"],
-                row["event_type"],
+                row.get("position", ""),
+                event_type,
+                event,
                 ts_str
             ]
             for col, value in enumerate(values):
                 item = QTableWidgetItem(str(value))
                 font = item.font()
                 font.setPointSize(14)
-                if col == 2:  # "Event" column
+                if col == 2:  # "Event Type" column
+                    font.setBold(True)
+                if col == 3:  # "Event" column
                     font.setBold(True)
                 item.setFont(font)
                 # Alternate row coloring
@@ -206,8 +211,8 @@ class ActivityLogView(QWidget):
                 self.table.setItem(i, col, item)
 
             # Special event coloring for diverted
-            if row["event_type"] == "diverted":
-                for col in range(4):
+            if row.get("event", "") == "diverted":
+                for col in range(5):
                     item = self.table.item(i, col)
                     item.setBackground(Qt.green)
                     item.setForeground(Qt.white)
