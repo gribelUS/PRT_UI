@@ -12,7 +12,7 @@ import sys
 class MainWindow(QMainWindow):
     def __init__(self, db_conn, user):
         super().__init__()
-        self.resize(2000, 1200)
+        self.resize(1400, 900)
         self.db_conn = db_conn
         self.user = user
 
