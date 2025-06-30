@@ -33,11 +33,14 @@ def plc_update():
 def create_log():
     cart_id = request.args.get('cart_id')
     position = request.args.get('position')
-    event_type = request.args.get('event_type', 'manual')
-    if not cart_id or not position:
-        return jsonify({'error': 'cart_id and position required'}), 400
+    status = request.args.get('status')
+    transaction_id = request.args.get('transaction_id')
+    if not cart_id or not position or not status:
+        return jsonify({'error': 'cart_id, position, and status required'}), 400
+    action_type = 'Report' if not transaction_id else 'Request'
+    print(f"[DEBUG] Logging: cart_id={cart_id}, position={position}, status={status}, action_type={action_type}")
     try:
-        log_event(cart_id, position, event_type)
+        log_event(cart_id, position, status, action_type)
         return jsonify({'message': 'logged'}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

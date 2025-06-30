@@ -6,10 +6,10 @@ def send_cart_to_station(cart_id, station_id):
     """
     Send a request to the API to move a cart to a specific station.
     """
-    api_url = "http://localhost:5000/api/send_cart"
+    api_url = "http://localhost:2650/prt/dest"
     payload = {
-        "cart_id": cart_id,
-        "station_id": station_id
+        "barcode": cart_id,
+        "destination": station_id
     }
 
     try:

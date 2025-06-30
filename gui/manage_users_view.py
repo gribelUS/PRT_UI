@@ -60,7 +60,6 @@ class ManageUsersView(QWidget):
         self.load_users()
 
     def open_create_user_dialog(self):
-        # You can re-use or call your existing AddUser view/dialog here
         from .add_user import AddUser
         self.create_user_dialog = AddUser()
         if self.create_user_dialog.exec_() == 1:

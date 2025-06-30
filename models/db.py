@@ -12,6 +12,12 @@ ALLOWED_POSITIONS = {
     'Segment_A', 'Segment_B', 'Segment_C', 'Segment_D',
     'Segment_E', 'Segment_F'
 }
+EVENT_MAP = {
+    "0000": "Not Diverted",
+    "0010": "Lost",
+    "0100": "Diverted",
+    "0101": "Good & Diverted"
+}
 
 # Load MySQL config
 def load_config():
@@ -48,21 +54,28 @@ def get_connection():
         raise
 
 # Log a cart event with validation
-def log_event(cart_id, position, event_type):
+def log_event(cart_id, position, event, action_type=None):
     if position not in ALLOWED_POSITIONS:
         raise ValueError(f"Invalid position: {position}")
 
+    event_str = EVENT_MAP.get(event, event)
     try:
         conn = get_connection()
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO cart_logs (cart_id, position, event_type) VALUES (%s, %s, %s)",
-            (cart_id, position, event_type)
-        )
+        if action_type is not None:
+            cursor.execute(
+                "INSERT INTO cart_logs (cart_id, position, event, action_type) VALUES (%s, %s, %s, %s)",
+                (cart_id, position, event, action_type)
+            )
+        else:
+            cursor.execute(
+                "INSERT INTO cart_logs (cart_id, position, event) VALUES (%s, %s, %s)",
+                (cart_id, position, event)
+            )
         conn.commit()
         cursor.close()
         conn.close()
-        print(f"📦 Logged event: {cart_id}, {position}, {event_type}")
+        print(f"📦 Logged event: {cart_id}, {position}, {event}, {action_type}")
     except Exception as e:
         print(f"❌ Error logging event: {e}")
 
@@ -90,7 +103,7 @@ def fetch_activity_logs(limit=100):
         cursor = conn.cursor()
         cursor.execute(
             """
-            SELECT cart_id, position, event_type, time_stamp
+            SELECT cart_id, position, action_type, event, time_stamp
             FROM cart_logs
             ORDER BY time_stamp DESC
             LIMIT %s
@@ -111,7 +124,7 @@ def fetch_filtered_logs(cart_id=None, position=None, since_time=None):
         conn = get_connection()
         cursor = conn.cursor()
         query = """
-            SELECT cart_id, position, event_type, time_stamp
+            SELECT cart_id, position, action_type, event, time_stamp
             FROM cart_logs
         """
         conditions = []
