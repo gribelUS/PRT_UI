@@ -29,6 +29,21 @@ def plc_update():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/plc/report', methods=['POST'])
+def plc_report():
+    data = request.get_json(force=True)
+    cart_id = data.get('barcode')
+    location = data.get('sorter')
+    status = data.get('status')
+    if not cart_id or not location:
+        return jsonify({'error': 'barcode and sorter required'}), 400
+    position = POSITION_MAP.get(location, location)
+    try:
+        log_event(str(cart_id), position, status or '', action_type='Report')
+        return jsonify({'message': 'logged'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/log_event', methods=['GET'])
 def create_log():
     cart_id = request.args.get('cart_id')

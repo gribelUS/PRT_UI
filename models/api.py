@@ -1,7 +1,12 @@
 import requests
 from models.db import get_connection
 import datetime
+from flask import Flask, request, jsonify
 
+app = Flask(__name__)
+
+
+@app.route('/prt/dest', methods=['POST'])
 def send_cart_to_station(cart_id, station_id):
     """
     Send a request to the API to move a cart to a specific station.
