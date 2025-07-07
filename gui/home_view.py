@@ -54,6 +54,12 @@ class HomeView(QWidget):
         self.send_button.setStyleSheet("QPushButton:enabled { background-color: white; color: #002855; } QPushButton:disabled { background-color: #f5e6b5; color: #888; }")
         panel_layout.addWidget(self.send_button)
 
+        # Remove active cart button
+        self.remove_button = QPushButton("Remove Active Cart")
+        self.remove_button.setEnabled(False)
+        self.remove_button.setStyleSheet("QPushButton:enabled { background-color: white; color: #002855; } QPushButton:disabled { background-color: #f5e6b5; color: #888; }")
+        panel_layout.addWidget(self.remove_button)
+
         panel_layout.addStretch()
         self.panel_frame.setLayout(panel_layout)
 
