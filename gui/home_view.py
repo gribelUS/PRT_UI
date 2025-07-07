@@ -70,6 +70,7 @@ class HomeView(QWidget):
         self.setLayout(main_layout)
 
         self.send_button.clicked.connect(self.send_cart_to_station_clicked)
+        # self.remove_button.clicked.connect(self.remove_active_cart_clicked) # Uncomment when implemented
 
     def display_cart_info(self, cart_id):
         data = get_cart_info(cart_id)
